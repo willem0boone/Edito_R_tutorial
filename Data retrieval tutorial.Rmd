@@ -1,0 +1,223 @@
+---
+  title: "Data Retrieval for Marine Species Distribution Modelling"
+author: "Rutendo Musimwa, Willem Boone and Johannes Nowe "
+date: "2024-09-24"
+output:
+  html_document:
+  toc: true
+toc_float:
+  collapsed: false
+toc_depth: 2
+number_sections: false
+theme: default
+highlight: default
+df_print: paged
+css: bootstrap.css
+self_contained: false
+bibliography: references.bib
+csl: apa.csl
+fig_width: 10
+fig_height: 6
+editor_options: 
+  markdown: 
+    wrap: 72
+  wrap: 72
+---
+
+```{=html}
+<style>
+.htmlnb-widget {
+  margin: auto;
+}
+</style>
+```
+
+# Install packages and setup environment
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/home/HSM/")
+options(paged.print = FALSE)
+
+#Using the pak R package, multiple packages can be downloaded easily 
+if(!require('pak'))install.packages('pak')
+# install and load packages
+pckgs <- c("arrow", "tidyverse", "doParallel", "rasterVis", "mapview", 
+           "ENMeval", "dynamicSDM", "gridExtra", "raster", "spThin",
+           "BiocManager","Rarr","worrms","stars","foreach","terra")
+
+pak::pkg_install(pckgs)
+
+invisible(lapply(pckgs, library, character.only = TRUE))
+rm(pckgs)
+```
+
+# 1. OCCURENCE DATA
+
+This document demonstrates how to retrieve occurrence data for marine species from the EDITO platform.
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+### Step 1: Establish data lake connection (S3F)
+
+use `S3FileSystem` from package `arrow` to connect tot the data lake.
+
+```{r}
+data_lake <- S3FileSystem$create(anonymous = TRUE, scheme = "https", endpoint_override = "s3.waw3-1.cloudferro.com")
+```
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+### Step 2: Access EurOBIS occurrence data stored in the parquet file.
+
+The EurOBIS data is stored at following location in the data lake:
+
+`emodnet/biology/eurobis_occurence_data/eurobisgeoparquet/eurobis_no_partition_sorted.parquet`
+
+Using this address, you can open the dataset using `arrow::open_dataset`
+
+```{r}
+path_to_eurobis = "emodnet/biology/eurobis_occurence_data/eurobisgeoparquet/eurobis_no_partition_sorted.parquet"
+
+eurobis <- arrow::open_dataset(data_lake$path(path_to_eurobis))
+```
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+### Step 3: Filter the occurrences
+
+You can filter the data set on following criteria:
+
+-   `aphiaidaccepted`: int
+-   `latitude` & `longitude`: int or float
+-   `Date`: string formatted date `YYYY-MM-DD`
+
+Some example Aphia IDs
+
+| Species           | Aphia ID |
+|-------------------|----------|
+| Atlantic mackerel | 127023   |
+| Atlantic herring  | 126417   |
+| European seabass  | 126975   |
+
+More Aphia IDs can be found using the `worrms` package to query the worms database. Searching on scientific name or common name:
+
+```{r}
+# Searching on scientific name
+worrms::wm_name2id("Clupea harengus")
+
+# Searching on common name
+worrms::wm_records_common("Atlantic herring")|> dplyr::select("AphiaID","scientificname")
+```
+
+Define your parameters here: For example for herring:
+
+```{r}
+aphia_ID = 126417
+sel_longitude = c(-20, 40)
+sel_latitude = c(30, 65)
+start_date = "2010-01-01"
+end_date = "2020-12-31"
+```
+
+Perform the selection:
+
+```{r}
+my_selection <- eurobis |> 
+  filter(aphiaidaccepted == aphia_ID,
+         longitude > sel_longitude[1], 
+         longitude < sel_longitude[2],
+         latitude > sel_latitude[1], 
+         latitude < sel_latitude[2],
+         observationdate >= as.POSIXct(start_date),
+         observationdate <= as.POSIXct(end_date)) |> 
+  collect()
+```
+
+Inspect the selection, for herring you should have `137.152` occurrences between 2010-2020 in region of interest (lat(-20; 40), lon(30; 65)).
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+### Step 4: Visualize your selection on a map
+
+Plot the data on a map using the `mapview` package. Notice that plotting might take some time, depending on the number of records in the dataset.
+
+```{r}
+mapview::mapview(my_selection$longitude, my_selection$latitude, crs = "epsg:4326")
+```
+
+# 2. ENVIRONMENTAL DATA
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+### Step 1: Source editoTools
+
+Source this R script, it contains several useful functions to interact with the data lake.
+
+```{r}
+source("editoTools.R")
+```
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+### Step 2: inspect EDITOSTAC
+
+`EDITOSTAC` is a data frame from `editoTools` and contains a library of all available datasets.
+
+Look at the data frame in your environment to see which datasets are available.
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+### Step 3: set search parameters
+
+Following parameters are used:
+
+-   `variable`: String (e.g. `thetao`, `so`, `zooc`, `phyc`)
+-   `StacCatalogue`: use `EDITOSTAC` which is a data frame created in `editoTools`.
+-   `lon_min`: int or float.
+-   `lon_ma`: int or float.
+-   `lat_min`: int or float.
+-   `lat_max`: int or float.
+-   `requestedTimeSteps`: can be one of `NA 86400000 21600000 3600000 10800000 900000 604800000`
+-   `date`: single date *Johannes*: yes, just a date, doesn't work with multiple dates, would need to loop over it one-by-one
+-   `select_layers`: NULL or int, if multiple layers available it will ask which one you want, can pre-select the first, second, ... layer
+
+```{r}
+variable = "thetao"
+stacCatalogue = EDITOSTAC
+lon_min = -12
+lon_max = 10
+lat_min = 48
+lat_max = 62
+requestedTimeSteps = 3600000
+date = "2020-09-01"
+```
+
+### Step 3: request raster values
+
+This function might give you some warnings, but it runs just fine.
+
+```{r}
+raster_example <- getRasterSlice(variable,
+                                   stacCatalogue = EDITOSTAC,
+                                   lon_min = lon_min,
+                                   lon_max = lon_max,
+                                   lat_min = lat_min,
+                                   lat_max = lat_max,
+                                   requestedTimeSteps = requestedTimeSteps,
+                                   date = date,
+                                   select_layers = NULL)
+```
+
+### Step 4: plot the raster as a map
+
+```{r}
+ # plot
+mapview(raster_example)
+```
+
+# Discover more
+
+`EditoTools.R` contains several other useful functions such as `enhanceDF` which are demonstrated in the tutorial "*Using EditoTools for predictive modelling of Atlantic herring larvae in the North Sea***".**
+
+**\>\> Go a head and explore this notebook :-)**
