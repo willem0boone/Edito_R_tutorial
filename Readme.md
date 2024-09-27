@@ -5,7 +5,7 @@ Notebook developed by [Rutendo Musimwa](https://orcid.org/0009-0004-2354-4905), 
 
 ## Content
 This tutorial demonstrates how to retrieve data from the Edito data lake. There are 2 parts:
-- part 1: retrieve bio-oracle occurrence data stored in a .parquet file.
+- part 1: retrieve Eurobis occurrence data stored in a .parquet file.
 - part 2: retrieve environmental data (e.g. SST) stored in a .zarr file. 
 
 ## editoTools.R
