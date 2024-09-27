@@ -1,7 +1,7 @@
 # Readme
 
 ## About
-Notebook developed by [Rutendo Musimwa](https://orcid.org/0009-0004-2354-4905), [Jo-Hannes Nowé](https://orcid.org/0009-0000-1555-5867) and [Willem Boone](https://orcid.org/0009-0008-0916-6847).
+Notebooks developed by [Rutendo Musimwa](https://orcid.org/0009-0004-2354-4905), [Jo-Hannes Nowé](https://orcid.org/0009-0000-1555-5867) and [Willem Boone](https://orcid.org/0009-0008-0916-6847).
 
 ## Content
 This tutorial demonstrates how to retrieve data from the Edito data lake. There are 2 parts:
