@@ -249,8 +249,7 @@ df_occ_bg_env = enhanceDF(inputPoints = my_selection,
                           requestedParameters = parameters,
                           requestedTimeSteps = NA,
                           stacCatalogue = EDITOSTAC,
-                          verbose="on",
-                          select_layers = rep(1, 2))
+                          verbose="on")
 
 ```
 
