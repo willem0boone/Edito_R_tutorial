@@ -246,7 +246,7 @@ parameters = list(
 
 Run `enhanceDF`
 
-NOTICE: this part includes command line interaction and cannot run as "run Current Chunck" play button. Instead, put your cursor before the first line and press cntrl + enter.
+NOTICE: this part includes command line interaction which is not enabled with the "run Current Chunk" play button. Instead, put your cursor before the first line and press cntrl + enter. If multiple data sources are available, the command line will ask your input in defining which layer it should use.
 
 ```{r}
 df_occ_bg_env = enhanceDF(inputPoints = my_selection,
