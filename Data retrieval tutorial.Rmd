@@ -51,6 +51,8 @@ invisible(lapply(pckgs, library, character.only = TRUE))
 rm(pckgs)
 ```
 
+IMPORTANT: restart the R session if packages have been re-installed to update to latest version.
+
 # 1. OCCURENCE DATA
 
 This document demonstrates how to retrieve occurrence data for marine species from the EDITO platform.
@@ -65,7 +67,7 @@ use `S3FileSystem` from package `arrow` to connect tot the data lake.
 data_lake <- S3FileSystem$create(anonymous = TRUE, scheme = "https", endpoint_override = "s3.waw3-1.cloudferro.com")
 ```
 
-If there is an issue with S3FileSystem; run re-install arrow package.
+If there is an issue with S3FileSystem; run re-install arrow package (un-comment this code an run).
 
 ```{r}
 #remove.packages("arrow")
@@ -243,6 +245,8 @@ parameters = list(
 ```
 
 Run `enhanceDF`
+
+NOTICE: this part includes command line interaction and cannot run as "run Current Chunck" play button. Instead, put your cursor before the first line and press cntrl + enter.
 
 ```{r}
 df_occ_bg_env = enhanceDF(inputPoints = my_selection,
