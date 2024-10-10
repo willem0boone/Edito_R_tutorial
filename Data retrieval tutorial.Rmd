@@ -164,7 +164,7 @@ mapview::mapview(my_selection$longitude, my_selection$latitude, crs = "epsg:4326
 Source this R script, it contains several useful functions to interact with the data lake.
 
 ```{r}
-source("editoTools.R")
+source("https://raw.githubusercontent.com/EDITO-Infra/R_tools/main/editoTools.R")
 ```
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
