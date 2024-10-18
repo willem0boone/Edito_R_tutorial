@@ -31,14 +31,14 @@ editor_options:
 }
 </style>
 ```
-# Install packages and setup environment
+# Load packages and setup environment
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "/home/HSM/")
 options(paged.print = FALSE)
 
-# install and load packages
+# load packages
 pckgs <- c("arrow", "tidyverse", "doParallel", "rasterVis", "mapview", 
            "ENMeval", "dynamicSDM", "gridExtra", "raster", "spThin",
            "BiocManager","Rarr","worrms","stars","foreach","terra")
@@ -46,8 +46,6 @@ pckgs <- c("arrow", "tidyverse", "doParallel", "rasterVis", "mapview",
 invisible(lapply(pckgs, library, character.only = TRUE))
 rm(pckgs)
 ```
-
-IMPORTANT: restart the R session if packages have been re-installed to update to latest version.
 
 # 1. OCCURENCE DATA
 
