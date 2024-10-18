@@ -47,7 +47,7 @@ invisible(lapply(pckgs, library, character.only = TRUE))
 rm(pckgs)
 ```
 
-# 1. OCCURENCE DATA
+# 1. OCCURRENCE DATA
 
 This document demonstrates how to retrieve occurrence data for marine species from the EDITO platform.
 
@@ -55,7 +55,7 @@ This document demonstrates how to retrieve occurrence data for marine species fr
 
 ### Step 1: Establish data lake connection (S3F)
 
-use `S3FileSystem` from package `arrow` to connect tot the data lake.
+use `S3FileSystem` from package `arrow` to connect to the data lake.
 
 ```{r}
 data_lake <- S3FileSystem$create(anonymous = TRUE, scheme = "https", endpoint_override = "s3.waw3-1.cloudferro.com")
@@ -174,7 +174,7 @@ Following parameters are used:
 -   `lat_min`: int or float.
 -   `lat_max`: int or float.
 -   `requestedTimeSteps`: can be one of `NA 86400000 21600000 3600000 10800000 900000 604800000`
--   `date`: single date *Johannes*: yes, just a date, doesn't work with multiple dates, would need to loop over it one-by-one
+-   `date`: single date Note:Just a date, doesn't work with multiple dates, would need to loop over it one-by-one
 -   `select_layers`: NULL or int, if multiple layers available it will ask which one you want, can pre-select the first, second, ... layer
 
 ```{r}
@@ -188,7 +188,7 @@ requestedTimeSteps = 3600000
 date = "2020-09-01"
 ```
 
-### Step 3: request raster values
+### Step 4: request raster values
 
 This function might give you some warnings, but it runs just fine.
 
@@ -213,7 +213,7 @@ mapview(raster_example)
 
 # Part 3 TRAINING DATA
 
-If we want to train a habitat suitability model, we would need the occurrences together with the envorinmental variables. For this, you can use the `enhanceDF` function. Tis function requires following columns: Latitude, Longitude and Time (YYYY-MM-DD)
+If we want to train a habitat suitability model, we would need the occurrences together with the environmental variables. For this, you can use the `enhanceDF` function. This function requires following columns: Latitude, Longitude and Time (YYYY-MM-DD)
 
 ```{r}
 my_selection$Latitude = my_selection$latitude
@@ -247,4 +247,4 @@ df_occ_bg_env = enhanceDF(inputPoints = my_selection,
 
 `EditoTools.R` contains several other useful functions which are demonstrated in the tutorial "*Using EditoTools for predictive modelling of Atlantic herring larvae in the North Sea***".**
 
-**\>\> Go a head and explore this notebook :-)**
+**\>\> Go ahead and explore this notebook :-)**
