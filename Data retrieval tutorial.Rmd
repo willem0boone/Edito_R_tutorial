@@ -38,14 +38,10 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "/home/HSM/")
 options(paged.print = FALSE)
 
-#Using the pak R package, multiple packages can be downloaded easily 
-if(!require('pak'))install.packages('pak')
 # install and load packages
 pckgs <- c("arrow", "tidyverse", "doParallel", "rasterVis", "mapview", 
            "ENMeval", "dynamicSDM", "gridExtra", "raster", "spThin",
            "BiocManager","Rarr","worrms","stars","foreach","terra")
-
-pak::pkg_install(pckgs)
 
 invisible(lapply(pckgs, library, character.only = TRUE))
 rm(pckgs)
@@ -65,14 +61,6 @@ use `S3FileSystem` from package `arrow` to connect tot the data lake.
 
 ```{r}
 data_lake <- S3FileSystem$create(anonymous = TRUE, scheme = "https", endpoint_override = "s3.waw3-1.cloudferro.com")
-```
-
-If there is an issue with S3FileSystem; run re-install arrow package (un-comment this code an run).
-
-```{r}
-#remove.packages("arrow")
-#unlink("~/.RData")
-#install.packages("arrow", dependencies = TRUE)
 ```
 
 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
